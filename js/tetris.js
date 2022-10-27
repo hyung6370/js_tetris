@@ -53,16 +53,63 @@ function prependNewLine() {
 function renderBlocks() {
     const { type, direction, top, left } = tempMovingItem;
     // tempMovingItem에 들어있는 각각의 property들을 변수로 사용해서 바로 사용할수있도록
-    
-
+    const movingBlocks = document.querySelectorAll(".moving");
+    movingBlocks.forEach(moving => {
+        moving.classList.remove(type, "moving");
+        console.log(moving);
+    })
     BLOCKS[type][direction].forEach(block => {
         const x = block[0] + left;
         const y = block[1] + top;
-        console.log({playground});
-        const target = playground.childNodes[y].childNodes[0].childNodes[x];
-        target.classList.add(type);
+        const target = playground.childNodes[y] ? playground.childNodes[y].childNodes[0].childNodes[x] : null;
+        const isAvailable = checkEmpty(target);
+        if (isAvailable) {
+            target.classList.add(type, "moving");    
+        }
+        else {
+            tempMovingItem = { ...movingItem };
+            // setTimeout(() => {
+            //     renderBlocks();
+            // }, 0);
+            renderBlocks();
+        }
     });
+    movingItem.left = left;
+    movingItem.top = top;
+    movingItem.direction = direction;
+}
+
+function checkEmpty(target) {
+    if (!target) {
+        return false;
+    }
+    return true;
+}
+
+function moveBlock(moveType, amount) {
+    tempMovingItem[moveType] += amount;
+    renderBlocks();
 }
 
 // event handling
-document.addEventListener("keydown")
+document.addEventListener("keydown", e=> {
+    switch(e.keyCode) {
+        case 39:
+            moveBlock("left", 1);
+            break;
+
+        case 37:
+            moveBlock("left", -1);
+            break;
+
+        case 40:
+            moveBlock("top", 1);
+            break;
+
+        
+
+        default:
+            break;
+    }
+    // console.log(e);
+});
